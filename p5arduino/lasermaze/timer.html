@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.1/p5.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.1/addons/p5.sound.min.js"></script>
+    <!-- <link rel="stylesheet" type="text/css" href="style.css"> -->
+    <meta charset="utf-8" />
+    <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+      }
+      canvas {
+        display: block;
+      }
+    </style>
+
+  </head>
+  <body>
+    <main>
+    </main>
+    <script>
+
+    // states: inactive, ready, go, complete, busted
+
+    // b = begin
+      // hold: "ready" (yellow)
+      // release: "go" (blue)
+    // e = end
+      // "complete" (green)
+    // l = laser
+      // "busted" (red)
+      
+    let state = "inactive";
+    let time = 0;
+    
+    function setup() {
+      createCanvas(windowWidth,windowHeight);
+      textFont('Courier New');
+      textSize(width/10);
+      textAlign(CENTER,CENTER);
+      strokeWeight(50);
+    }
+    
+    function draw() {
+      if(state == "inactive"){
+        background(0); // black
+        fill(255);
+      }
+      if(keyIsDown(66)){ // b
+        state = "ready"; // yellow
+        background(255,255,0);
+        fill(0);
+        time = 0;
+      }
+      if(state == "go"){
+        background(0,0,255); // blue
+        fill(255);
+        time++;
+      }
+      if(state == "complete"){
+        background(0,255,0); // green
+        fill(0);
+      }
+      if(state == "busted"){
+        background(255,0,0); // red
+        fill(255);
+      }
+      
+      text(state.toUpperCase(),width/2,height/2-height/8);
+      // text(Math.floor(time/6)/10,width/2,height/2+height/8);
+      text((time/60).toFixed(1),width/2,height/2+height/8);
+    }
+    
+    function keyReleased(){
+      if(key == "b"){
+        state = "go";
+      }
+    }
+    
+    function keyPressed(){
+      if(key == "e"){
+        state = "complete";
+      }
+      if(key == "l"){
+        state = "busted";
+      }
+    }
+      
+    </script>
+  </body>
+</html>
