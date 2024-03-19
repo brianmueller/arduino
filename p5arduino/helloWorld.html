@@ -1,40 +1,148 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 
+<!-- https://itp.nyu.edu/physcomp/labs/labs-serial-communication/lab-serial-input-to-the-p5-js-ide/ -->
+
 <head>
   <title>Hello World</title>
-  <script src="https://cdn.socket.io/socket.io-1.3.5.js"></script>
-  <script src="p5.js"></script>
-  <script src="p5bots.js"></script>
-  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.4.13/p5.js"></script> -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.1/p5.js"></script>
+  <script language="javascript" type="text/javascript" src="https://cdn.jsdelivr.net/npm/p5.serialserver@0.0.28/lib/p5.serialport.js"></script>
   <script>
-    var b = p5.board('/dev/cu.usbmodem1411', 'arduino');
-    var led;
+
+
+    // let serial; // variable to hold an instance of the serialport library
+ 
+    // function setup() {
+    //   serial = new p5.SerialPort(); // make a new instance of the serialport library
+    //   serial.on('list', printList); // set a callback function for the serialport list event
+    
+    //   serial.list(); // list the serial ports
+    // }
+    
+    // // get the list of ports:
+    // function printList(portList) {
+    //   // portList is an array of serial port names
+    //   for (var i = 0; i < portList.length; i++) {
+    //     // Display the list the console:
+    //     console.log(i + portList[i]);
+    //   }
+    // }
+
+
+
+
+
+
+
+
+    // let serial;          // variable to hold an instance of the serialport library
+    // let portName = '/dev/tty.usbmodem21301';  // fill in your serial port name here
+    // let inData;
+    
+    // function setup() {
+    //   serial = new p5.SerialPort();       // make a new instance of the serialport library
+    //   // serial.on('list', printList);  // set a callback function for the serialport list event
+    //   // serial.on('connected', serverConnected); // callback for connecting to the server
+    //   // serial.on('open', portOpen);        // callback for the port opening
+    //   serial.on('data', serialEvent);     // callback for when new data arrives
+    //   // serial.on('error', serialError);    // callback for errors
+    //   // serial.on('close', portClose);      // callback for the port closing
+    
+    //   // serial.list();                      // list the serial ports
+    //   // serial.open(portName);              // open a serial port
+    //   createCanvas(400, 300);
+    // }
+
+    // function serialEvent() {
+    //   inData = serial.read();
+    //   background(0);
+    //   fill(255);
+    //   text("inData: " + inData, 30, 50);
+    // }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    let serial;
+    let latestData = "waiting for data";
 
     function setup() {
-      led = b.pin(9, 'LED');
+    createCanvas(windowWidth, windowHeight);
+
+    serial = new p5.SerialPort();
+
+    serial.list();
+    serial.open('/dev/tty.usbmodem21301');
+
+    serial.on('connected', serverConnected);
+
+    serial.on('list', gotList);
+
+    serial.on('data', gotData);
+
+    serial.on('error', gotError);
+
+    serial.on('open', gotOpen);
+
+    serial.on('close', gotClose);
+    }
+
+    function serverConnected() {
+    print("Connected to Server");
+    }
+
+    function gotList(thelist) {
+    print("List of Serial Ports:");
+
+    for (let i = 0; i < thelist.length; i++) {
+      print(i + " " + thelist[i]);
+    }
+    }
+
+    function gotOpen() {
+    print("Serial Port is Open");
+    }
+
+    function gotClose(){
+    print("Serial Port is Closed");
+    latestData = "Serial Port is Closed";
+    }
+
+    function gotError(theerror) {
+    print(theerror);
+    }
+
+    function gotData() {
+    let currentString = serial.readLine();
+      trim(currentString);
+    if (!currentString) return;
+    console.log(currentString);
+    latestData = currentString;
     }
 
     function draw() {
-
+    background(255,255,255);
+    fill(0,0,0);
+    text(latestData, 10, 10);
+    // Polling method
+    /*
+    if (serial.available() > 0) {
+      let data = serial.read();
+      ellipse(50,50,data,data);
+    }
+    */
     }
 
-    function mousePressed() {
-
-    }
-
-    function keyPressed() {
-      if (keyCode === LEFT_ARROW) {
-        led.on();
-      } else if (keyCode === RIGHT_ARROW) {
-        led.off();
-      } else if (keyCode === UP_ARROW) {
-        led.blink();
-        console.log('Hello, World!'); // <- here!
-      } else if (keyCode === DOWN_ARROW) {
-        led.noBlink();
-      }
-    }
   </script>
 </head>
 

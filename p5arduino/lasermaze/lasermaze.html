@@ -20,6 +20,7 @@
   <!-- <script src="p5bots.js"></script> -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.1/p5.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.1/addons/p5.sound.min.js"></script>
+  <script language="javascript" type="text/javascript" src="https://cdn.jsdelivr.net/npm/p5.serialserver@0.0.28/lib/p5.serialport.js"></script>
   <script>
 
     // states: inactive, ready, go, complete, busted
@@ -34,15 +35,15 @@
       
     let state = "inactive";
     let time = 0;
+    let soundActive = false;
     let beginSound = 0; // both of these prevent sounds from playing in a loop
     let endSound = 0; // resets when state alternates
     let armedSound;
     let goSound;
     let completeSound;
     let bustedSound;
-
-    // TODO: get arduino serial state
-    let arduinoState = "";
+    let serial;
+    let arduinoData = "waiting for data";
 
     function preload() {
       soundFormats('mp3', 'ogg', 'm4a');
@@ -55,21 +56,25 @@
     function setup() {
       createCanvas(windowWidth,windowHeight);
       textFont('Courier New');
-      textSize(width/10);
       textAlign(CENTER,CENTER);
       strokeWeight(50);
       goSound.setVolume(0.5);
+
+      serial = new p5.SerialPort();serial.list();
+      serial.open('/dev/tty.usbmodem21301');
+      serial.on('data', gotData);
     }
     
     function draw() {
 
-      console.log({state, arduinoState});
+      console.log({state, arduinoData});
       
-      if(state == "inactive" || arduinoState == "inactive"){
+      if(state == "inactive" || arduinoData == "inactive"){
+        state = "inactive";
         background(0); // black
         fill(255);
       }
-      if(keyIsDown(65) || arduinoState == "armed"){ // a
+      if(keyIsDown(65) || arduinoData == "armed"){ // a
         state = "armed"; // yellow
         background(255,255,0);
         fill(0);
@@ -81,7 +86,8 @@
           beginSound = 1;
         }
       }
-      if(state == "go" || arduinoState == "go"){
+      if(state == "go" || arduinoData == "go"){
+        state = "go";
         background(0,0,255); // blue
         fill(255);
         time++;
@@ -89,7 +95,8 @@
           goSound.play();
         }
       }
-      if(state == "complete" || arduinoState == "complete"){
+      if(state == "complete" || arduinoData == "complete"){
+        state = "complete";
         background(0,255,0); // green
         fill(0);
         beginSound = 0;
@@ -99,7 +106,8 @@
           endSound = 1;
         }
       }
-      if(state == "busted" || arduinoState == "busted"){
+      if(state == "busted" || arduinoData == "busted"){
+        state = "busted";
         background(255,0,0); // red
         fill(255);
         beginSound = 0;
@@ -110,9 +118,19 @@
         }
       }
       
+      textSize(width/10);
       text(state.toUpperCase(),width/2,height/2-height/8);
       // text(Math.floor(time/6)/10,width/2,height/2+height/8);
       text((time/60).toFixed(1),width/2,height/2+height/8);
+
+      if(!soundActive){
+        textSize(width/30);
+        text("Click here to enable sound",width/2,height/2+height/4);
+      }
+    }
+
+    function mousePressed(){
+      soundActive = true;
     }
     
     function keyReleased(){
@@ -130,7 +148,13 @@
       }
     }
 
-
+    function gotData() {
+      let currentString = serial.readLine();
+      trim(currentString);
+      if (!currentString) return;
+      // console.log(currentString);
+      arduinoData = currentString;
+    }
 
 
 

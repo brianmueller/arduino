@@ -9,7 +9,8 @@
   // "busted" (red)
 
 int solarPin = A0;
-int solarThreshold = 500;
+int solarValue = 0;
+int solarThreshold = 0;
 int startButtonPin = 2;
 int endButtonPin = 3;
 int relayPin = 4;
@@ -32,7 +33,7 @@ void setup() {
 // the loop function runs over and over again forever
 void loop() {
 
-  int solarValue = analogRead(solarPin);
+  solarValue = analogRead(solarPin);
 
   // arm
   if(digitalRead(startButtonPin) == LOW){
