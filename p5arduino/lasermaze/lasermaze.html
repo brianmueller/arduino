@@ -43,7 +43,9 @@
     let completeSound;
     let bustedSound;
     let serial;
-    let arduinoData = "waiting for data";
+    let arduinoState = "waiting for data";
+    let arduinoSolarThreshold = "0";
+    let arduinoSolarValue = "0";
 
     function preload() {
       soundFormats('mp3', 'ogg', 'm4a');
@@ -56,25 +58,29 @@
     function setup() {
       createCanvas(windowWidth,windowHeight);
       textFont('Courier New');
-      textAlign(CENTER,CENTER);
       strokeWeight(50);
       goSound.setVolume(0.5);
 
       serial = new p5.SerialPort();serial.list();
-      serial.open('/dev/tty.usbmodem21301');
+      serial.open('/dev/tty.usbmodem1101');
       serial.on('data', gotData);
     }
     
     function draw() {
 
-      console.log({state, arduinoData});
+      console.log({state, arduinoState});
       
-      if(state == "inactive" || arduinoData == "inactive"){
+      if(state == "inactive" || arduinoState == "inactive"){
         state = "inactive";
         background(0); // black
         fill(255);
+
+        textSize(width/60);
+        textAlign(CENTER,CENTER);
+        text("Solar Threshold: " + arduinoSolarThreshold,width*0.5,height*0.85);
+        text("    Solar Value: " + arduinoSolarValue,width*0.5,height*0.9);
       }
-      if(keyIsDown(65) || arduinoData == "armed"){ // a
+      if(keyIsDown(65) || arduinoState == "armed"){ // a
         state = "armed"; // yellow
         background(255,255,0);
         fill(0);
@@ -86,7 +92,7 @@
           beginSound = 1;
         }
       }
-      if(state == "go" || arduinoData == "go"){
+      if(state == "go" || arduinoState == "go"){
         state = "go";
         background(0,0,255); // blue
         fill(255);
@@ -95,7 +101,7 @@
           goSound.play();
         }
       }
-      if(state == "complete" || arduinoData == "complete"){
+      if(state == "complete" || arduinoState == "complete"){
         state = "complete";
         background(0,255,0); // green
         fill(0);
@@ -106,7 +112,7 @@
           endSound = 1;
         }
       }
-      if(state == "busted" || arduinoData == "busted"){
+      if(state == "busted" || arduinoState == "busted"){
         state = "busted";
         background(255,0,0); // red
         fill(255);
@@ -118,6 +124,7 @@
         }
       }
       
+      textAlign(CENTER,CENTER);
       textSize(width/10);
       text(state.toUpperCase(),width/2,height/2-height/8);
       // text(Math.floor(time/6)/10,width/2,height/2+height/8);
@@ -153,9 +160,16 @@
       trim(currentString);
       if (!currentString) return;
       // console.log(currentString);
-      arduinoData = currentString;
+      let arduinoData = currentString.split(",");
+      arduinoState = arduinoData[0];
+      arduinoSolarThreshold = make4chars(arduinoData[1]);
+      arduinoSolarValue = make4chars(arduinoData[2]);
     }
 
+    function make4chars(str){
+      let charsToAdd = 4-str.length;
+      return str + " ".repeat(charsToAdd);
+    }
 
 
 

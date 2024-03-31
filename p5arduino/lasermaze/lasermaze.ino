@@ -9,8 +9,9 @@
   // "busted" (red)
 
 int solarPin = A0;
-int solarValue = 0;
-int solarThreshold = 0;
+int solarPotPin = A1;
+int solarValue;
+int solarThreshold;
 int startButtonPin = 2;
 int endButtonPin = 3;
 int relayPin = 4;
@@ -19,11 +20,12 @@ String state = "inactive";
 void setup() {
   // initialize digital pin LED_BUILTIN as an output.
   pinMode(LED_BUILTIN, OUTPUT);
+  pinMode(relayPin,OUTPUT);
   pinMode(startButtonPin, INPUT_PULLUP);
   pinMode(endButtonPin, INPUT_PULLUP);
 
   // testing only
-  relayPin = LED_BUILTIN;
+  // relayPin = LED_BUILTIN;
   
   Serial.begin(9600);
 
@@ -34,6 +36,7 @@ void setup() {
 void loop() {
 
   solarValue = analogRead(solarPin);
+  solarThreshold = analogRead(solarPotPin);
 
   // arm
   if(digitalRead(startButtonPin) == LOW){
@@ -55,8 +58,9 @@ void loop() {
     busted();
   }
   
-  Serial.println(state);
-//  Serial.println(solarValue);
+  // Serial.println(state);
+  // Serial.println(solarValue);
+  Serial.println(state + "," + solarThreshold + "," + solarValue);
 
 
 }
