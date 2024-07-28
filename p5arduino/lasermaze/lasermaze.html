@@ -46,6 +46,9 @@
     let arduinoState = "waiting for data";
     let arduinoSolarThreshold = "0";
     let arduinoSolarValue = "0";
+    let calibrateHigh;
+    let calibrateLow;
+    let calibrateText = "";
 
     function preload() {
       soundFormats('mp3', 'ogg', 'm4a');
@@ -62,7 +65,7 @@
       goSound.setVolume(0.5);
 
       serial = new p5.SerialPort();serial.list();
-      serial.open('/dev/tty.usbmodem1101');
+      serial.open('/dev/tty.usbmodem2101');
       serial.on('data', gotData);
     }
     
@@ -73,12 +76,29 @@
       if(state == "inactive" || arduinoState == "inactive"){
         state = "inactive";
         background(0); // black
-        fill(255);
+        
+        let calibrateHigh = arduinoSolarValue - 15;
+        let calibrateLow = arduinoSolarValue - 30;
 
         textSize(width/60);
         textAlign(CENTER,CENTER);
-        text("Solar Threshold: " + arduinoSolarThreshold,width*0.5,height*0.85);
-        text("    Solar Value: " + arduinoSolarValue,width*0.5,height*0.9);
+        
+        // if(arduinoSolarThreshold > calibrateLow && arduinoSolarThreshold < calibrateHigh){
+        if(arduinoSolarThreshold > calibrateHigh){ // too high
+          calibrateText = "(too high)  ";
+          fill(255,0,0); // red
+        }
+        else if(arduinoSolarThreshold < calibrateLow){ // too low
+          calibrateText = "(too low)   ";
+          fill(255,0,0); // red
+        } else { // within range
+          calibrateText = "(just right)";
+          fill(0,255,0); // green
+        }
+        text("         Solar Threshold: " + arduinoSolarThreshold + " " + calibrateText,width*0.5,height*0.85);
+
+        fill(255);
+        text("Solar Value: " + arduinoSolarValue,width*0.5,height*0.9);
       }
       if(keyIsDown(65) || arduinoState == "armed"){ // a
         state = "armed"; // yellow
